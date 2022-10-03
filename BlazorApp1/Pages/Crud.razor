@@ -1,0 +1,153 @@
+﻿@page "/crud"
+
+<PageTitle>Crud</PageTitle>
+<h1><Font color="312287"> Crud </Font></h1>
+   Estudo de documentação
+   <br /> <br /> <br />
+
+<Font color="580671"> <h4> ↳ Listar Objetos </h4> </Font>
+A explicação completa de como listar objetos está disponível na página Lista. <br /> <br /> 
+
+<Font color="580671"> <h4> ↳ Deletar Objetos </h4> </Font>
+Deletar um objeto significa que ele apagará as informações do objeto que esta em sua lista.<br/><br/>
+
+<li>Para fazer o deletar tem que criar duas Entidades no BlazorWasm.Compartilhado. No exemplo a seguir foi criado uma entidade chamada Banda.cs e uma chamada IEntity.cs.</li><br/>
+
+<li>No IEntity.cs foi criado uma interface publica atribuindo ao id um get e set.</li><br/>
+
+<textarea class="msg" cols="100" rows="6">namespace BlazorWasm.Compartilhado.Entidades{
+    public interface IEntity{
+        int Id { get; set; }
+    }
+}</textarea><br/><br/>
+
+<li>No Banda.cs foi a classe publica Banda que deriva da classe base IEntity fazendo com que o id vire um atributo público e criando um atributo público texto Nome com um get e set. Caso o campo no Nome esteja vazio aparecerá uma mensagem de erro informando que o nome é requerido.</li><br/>
+
+ <textarea class="msg" cols="100" rows="6">public class Banda : IEntity{
+        public int Id { get; set; }
+        [Required(ErrorMessage = "Campo Nome é requirido.")]
+        public string Nome { get; set; }
+    }
+    </textarea>
+
+<li>Depois criamos um repositório que fará tarefas como adicionar, excluir, modificar, listar e pegar uma informação. </li><br/>
+<textarea class="msg" cols="100" rows="9">public interface IRepository &lt;T&gt;{
+            Task Add(T item);
+            Task &lt;int&gt; AddAndGetId(T item);
+            Task Delete(int Id);
+            Task&lt;List&lt;T&gt;&gt; Get();
+            Task&lt;T&gt; Get(int id);
+            Task Update(T item);
+        }
+       </textarea>
+
+<li>Teremos que fazer outro repositório utilizando a tarefa delete criada no outro repositório. Onde ela procurará pelo id da banda e removerá da lista.</li><br/>
+
+<textarea class="msg" cols="100" rows="6">public Task Delete(int id){
+            var banda = Banda.Find(x => x.Id == id);
+            Banda.Remove(banda);
+            return Task.CompletedTask;
+        }
+        </textarea>
+
+<li>O código abaixo espera que a ação deletar seja concluída.</li><br/>
+
+<textarea class="msg" cols="100" rows="6">private async Task DeletarItem(int Id){
+        await repositorio.Delete(Id);
+
+    }
+</textarea>
+
+<Font color="580671"> <h4> ↳ Cadastrar Objetos </h4> </Font> 
+
+Cadastrar um objeto possibilita que crie um item em sua lista.<br/><br/>
+
+    <li>Para criar o cadastrar criaremos uma página razor e criar um componente de formulário chamado Formbanda que terá a função de criar. Logo após nos iremos instanciar a banda em uma lista.</li><br/>
+
+<textarea class="msg" cols="100" rows="10">&lt;Formbanda Banda="banda" OnValidSubmit="Create" /&gt;
+
+@@code {
+    private Banda banda = new Banda();
+
+    private async Task Create(){
+            await repository.Add(banda);
+            navigationManager.NavigateTo("banda");
+    }
+}
+</textarea>
+
+<li>Teremos que criar uma tarefa no repositório para adicionar o nome da banda e o id e ele retornará esse resultado, quando estiver pronto.</li><br/>
+  <textarea class="msg" cols="100" rows="10">  public Task Add(Banda banda){
+            banda.Id = idBase++;
+            Banda.Add(banda);
+            return Task.CompletedTask;
+        }
+
+        public Task&lt;int&gt; AddAndGetId(Banda banda){
+            banda.Id = idBase++;
+            Banda.Add(banda);
+            return Task.FromResult(banda.Id);
+        }
+</textarea>
+
+<Font color="580671"> <h4> ↳ Editar Objetos </h4> </Font>
+
+Editar objetos poderá alterar as informações do item que está em sua lista.<br/><br/>
+
+<li>Colocaremos uma tarefa em um repositorio que fará a modificação dos dados da banda.</li> <br/>
+ 
+<textarea class="msg" cols="100" rows="6">public Task Update(Banda banda){
+            int index = Banda.IndexOf(Banda.First(o => o.Id == banda.Id));
+            Banda[index] = banda;
+            return Task.CompletedTask;
+        }
+</textarea>
+
+<li>Na página EditarForm o await espera pela conclusão de um resultado sem bloquear o fluxo do programa, então ele esperara o resultado do repositório update(banda); dar resultado.</li><br/>    
+
+<textarea class="msg" cols="100" rows="6">private Banda banda;
+    private async Task Edit(){
+        await repository.Update(banda);
+    }
+    </textarea>
+
+<Font color="580671"> <h4> ↳ Formulário </h4> </Font>
+
+O formulário mostrará todos os itens na lista.<br/><br/>
+
+<li>Para fazer um formulário foi criado um componente formulário chamado EditForm para editar pegando o modelo de Banda. Com isso colocamos um InputText que é um campo para colocar o Nome da banda e uma validação, quando salvar vai salvar na classe Banda no campo nome.</li><br/>
+<li>O OnValidSubmit é o retorno de chamada que será invocado quando o formulário for enviado.</li><br/>
+
+<textarea class="msg" cols="100" rows="15">&lt;EditForm Model="Banda" OnValidSubmit="OnValidSubmit"&gt;
+    &lt;DataAnnotationsValidator /&gt;
+    &lt;div class="form-group"&gt;
+        <label>Nome:</label>
+        &lt;div&gt;
+            &lt;InputText class="form-control" @@bind-Value="@@Banda.Nome" /&gt;
+            &lt;ValidationMessage For="(() =>Banda.Nome)" /&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;button class="btn btn-success" type="submit"&gt;Salvar&lt;/button&gt;
+&lt;/EditForm&gt;
+
+@@code {
+              [Parameter] public Banda Banda { get; set; }
+              [Parameter] public EventCallback OnValidSubmit { get; set; }
+}
+</textarea>
+
+
+<Font color="580671"> <h4> ↳ Injeção de Depedência </h4> </Font>
+A injeção de depência faz com que uma classe seja independente das suas depedências.<br<br/>
+
+<li>Criando injeção de depedência para usar no repositório da Banda</li> <br/>
+
+        <textarea class="msg" cols="100" rows="6">
+        private static void ConfigureServices(IServiceCollection services){
+        services.AddScoped&lt;IHttpService, HttpService&gt;();
+            services.AddSingleton&lt;IRepository&lt;Banda&gt;, RepositoryInMemoryBanda&gt;();
+        }
+       
+        </textarea>
+
+   

@@ -1,0 +1,125 @@
+﻿@page "/lista"
+
+<PageTitle>Lista</PageTitle>
+
+<h1><Font color="312287"> Listas </Font></h1>
+   Estudo de documentação
+   <br /> <br /> <br />
+
+<Font color="580671"> <h4> ↳ Trabalhando com Listas </h4> </Font>
+Uma lista é um objeto que armazena dados em determinada ordem e cresce automatiamente quando novos itens do mesmo tipo são adicionados.
+As listas possuem tamanho ajustável, são usadas quando não sabemos de antemão o tamanho dos dados que serão armazenados.
+<br /> <br /> 
+
+<li> Para criar uma lista é necessário primeiro criar uma classe pública <br /> </li>
+<textarea class="msg" cols="100" rows="6">public class Banda </textarea>
+<br /> <br />
+
+<li> Depois os atributos com os getters e setters <br /> </li>
+<textarea class="msg" cols="100" rows="6"> public class Banda { 
+	public string Nome { get; set; } 
+	}</textarea> <br />
+
+<br />
+<li> Para criar a lista é necessário usar a função <b> List&lt;&gt; </b> <br /> </li>
+<textarea class="msg" cols="100" rows="6"> List&lt;Banda&gt; listaBandas = new List&lt;Banda&gt;</textarea> <br />
+
+<br />
+<li> Em seguida temos que instaciar o produto para adicionar na lista <br /> </li>
+<textarea class="msg" cols="100" rows="15">Banda ta = new Banda();
+	ta.Nome = "One Direction"; 
+	ListaBandas.Add(ta);  
+
+    Banda tb = new Banda(); 
+    tb.Nome = "Simple Plan"; 
+    ListaBandas.Add(tb);
+</textarea> <br /> 
+
+<br /> <li>Para mostrar os valores da lista utilizamos podemos utilizar o <b> foreach</b> <br /> </li>
+Esta função é usada para percorrer a lista e mostrar os valores que estão lá. <br /> 
+
+<textarea class="msg" cols="100" rows="6"> foreach(banda in ListaBandas){ 
+	var nome = banda.Nome; 
+	}</textarea> <br />
+
+<br />
+<li> Diferença entre <b> for </b> e <b>foreach</b></li>
+A função <b> for </b> é uma estrutura de repetição que é utilizada quando sabemos a quantidade de repetições que um bloco de repetições será executado, diferente do <b> foreach </b> que possibilita executar um conjunto de comandos presente em uma coleção com vários itens.
+<br /> <br /> 
+
+<li> Função para exibir lista em tabela no front-end</li>
+Para exibir a lista no HTML é necessário usar a função <b> &lt;Table&gt; </b>
+<br /> A tag <b> &lt;ol&gt; </b> é usada para obter uma lista de itens numerada e a tag <b>&lt;ul&gt;  </b> para obter uma lista não numerada.
+<br />
+
+<br /> <textarea class="msg" cols="100" rows="17">
+   &lt;ul&gt; 
+
+    &lt;table class="table table-striped"&gt; 
+    &lt;thead&gt; 
+    &lt;tr&gt;
+    &lt;th>Nome Bandas&lt;/th&gt; 
+    &lt;/tr&gt;
+    &lt;/thead&gt; 
+    &lt;tbody&gt; 
+    &lt;ul&gt;
+    @@Foreach ( Var banda in ListaBandas) 
+                {  
+                    &lt;li&gt; @@banda.Nome &lt/li&gt; 
+                } 
+            &lt;/ul&gt; 
+        &lt;/tbody&gt;  
+    &lt;/table&gt; 
+&lt;/ul&gt; 
+</textarea>
+<br />  
+    
+
+<hr />
+
+<h4><Font color="580671">Lista criada</Font></h4>
+<div> 
+    <ul>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th> Nome Bandas </th>
+                </tr>
+            </thead>
+            <tbody>
+                 
+                    <ul>
+                        @foreach(var banda in ListaBandas){
+                            <li> @banda.Nome </li>
+                        }
+                    </ul>
+                
+            </tbody>
+        </table>
+    </ul>
+</div>
+
+
+
+@code{
+    public class Banda{
+        public string Nome { get; set; }
+    }
+
+    List<Banda> ListaBandas = new List<Banda>();
+
+    protected override void OnInitialized() {
+        Banda ta = new Banda();
+        ta.Nome = "One Direction";
+        ListaBandas.Add(ta);
+
+        Banda tb = new Banda();
+        tb.Nome = "Simple Plan";
+        ListaBandas.Add(tb);
+
+        foreach (var banda in ListaBandas) {
+            var nome = banda.Nome;
+        }
+    }
+}
+
